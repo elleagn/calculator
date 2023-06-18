@@ -1,0 +1,121 @@
+@font-face {
+  font-family: "neon";
+  src: url("fonts/NEON\ GLOW-Hollow-Inverse.otf");
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  overflow-x: hidden;
+  font-family: Verdana, Arial, Geneva, Tahoma, sans-serif;
+  background-color: black;
+}
+
+p.title {
+  display: none;
+  font-size: 50px;
+  margin-bottom: 20px;
+  box-shadow: inset 0px -4px 0px 0px #000000, inset 0px 3px 0px 0px #000000;
+}
+
+.border {
+  border: 2px solid #9181c9;
+  border-image: linear-gradient(90deg, #3993e4, #9181c9, #e96ead) 30;
+}
+.gradient {
+  background-image: linear-gradient(90deg, #3993e4, #9181c9, #e96ead);
+  background-color: #9181c9;
+}
+
+.transparent {
+  color: black;
+  background-size: 100%;
+  font-family: neon;
+  margin: 0;
+}
+
+span {
+  box-shadow: inset 0px 0px 0px 0.3px #000000;
+}
+
+.num {
+  border: 2px solid #1186ae;
+  border-image: linear-gradient(90deg, #0699a5, #1186ae, #1b73b6) 1;
+}
+
+.num span {
+  background-image: linear-gradient(90deg, #0699a5, #1186ae, #1b73b6);
+}
+
+.calculator {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 600px;
+  gap: 20px;
+  aspect-ratio: 9/13;
+}
+
+.display {
+  padding: 1px;
+  height: 150px;
+}
+
+.pad {
+  display: flex;
+  flex-direction: column;
+  flex: auto;
+  justify-content: space-evenly;
+  gap: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-evenly;
+  flex: auto;
+  gap: 20px;
+  height: 0;
+}
+
+.key {
+  background-color: black;
+  flex: auto;
+  width: 0;
+  font-size: 50px;
+}
+
+.operator {
+  border: 2px solid #ce7f3b;
+  border-image: linear-gradient(90deg, #ddbc30, #bc563f) 1;
+}
+
+.operator span {
+  background-color: #ce7f3b;
+  background-image: linear-gradient(90deg, #ddbc30, #bc563f);
+}
+
+.equal {
+  border: 2px solid #ce7f3b;
+  border-image: linear-gradient(90deg, #01f088, #147152) 1;
+}
+
+.equal span {
+  background-color: #147152;
+  background-image: linear-gradient(90deg, #01f088, #147152);
+}
+
+.clear {
+  border: 2px solid #ce7f3b;
+  border-image: linear-gradient(90deg, #01f088, #147152) 1;
+}
+
+.clear span {
+  background-color: #147152;
+  background-image: linear-gradient(90deg, #01f088, #147152);
+}
