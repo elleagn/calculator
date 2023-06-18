@@ -20,7 +20,21 @@ const divide = function (integer1, integer2) {
 let operand1;
 let operand2;
 let operator;
+let currentDisplay: querySelector(".calcul");
 
 const operate = function (operand1, operand2, operator) {
   return operator(operand1, operand2);
 };
+
+const numkeys = document.querySelectorAll(".num");
+const operatorkeys = document.querySelectorAll(".operator");
+
+numkeys.forEach(function (key) {
+  key.addEventListener("click", function (ev) {
+    addToDisplay(ev.currentTarget);
+  });
+});
+
+function addToDisplay(key) {
+  ;
+}

@@ -3,6 +3,11 @@
   src: url("fonts/NEON\ GLOW-Hollow-Inverse.otf");
 }
 
+@font-face {
+  font-family: "pixel";
+  src: url("fonts/neon_pixel-7.ttf");
+}
+
 body {
   margin: 0;
   display: flex;
@@ -65,6 +70,28 @@ span {
 .display {
   padding: 1px;
   height: 150px;
+  display: flex;
+  font-family: pixel;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.calcul {
+  font-size: 10vh;
+  margin: 0;
+  background-image: linear-gradient(90deg, #a3a7b5, #ebecf2);
+}
+.display p {
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.res {
+  font-size: 7vh;
+  margin: 0;
+  background-image: linear-gradient(90deg, #697088, #c0c4d1);
 }
 
 .pad {
@@ -111,11 +138,11 @@ span {
 }
 
 .clear {
-  border: 2px solid #ce7f3b;
-  border-image: linear-gradient(90deg, #01f088, #147152) 1;
+  border: 2px solid #d1474c;
+  border-image: linear-gradient(90deg, #e4355e, #731b1e) 1;
 }
 
 .clear span {
-  background-color: #147152;
-  background-image: linear-gradient(90deg, #01f088, #147152);
+  background-color: #d1474c;
+  background-image: linear-gradient(90deg, #e4355e, #731b1e);
 }
