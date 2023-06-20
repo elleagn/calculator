@@ -5,53 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calculator</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="script.js"></script>
+    <script src="script.js" defer></script>
   </head>
   <body>
     <p class="title transparent gradient">Calculator</p>
-    <div class="container">
-      <div class="calculator border">
-        <div class="display border">
-          <p class="calcul">02561232</p>
-          <p class="res">02561232</p>
+
+    <div class="calculator border">
+      <div class="display border">
+        <p class="calcul"></p>
+        <p class="res"></p>
+      </div>
+      <div class="pad">
+        <div class="row">
+          <button class="key num"><span class="transparent">9</span></button>
+          <button class="key num"><span class="transparent">8</span></button>
+          <button class="key num"><span class="transparent">7</span></button>
+          <button class="key operator">
+            <span class="transparent">+</span>
+          </button>
         </div>
-        <div class="pad">
-          <div class="row">
-            <button class="key num"><span class="transparent">9</span></button>
-            <button class="key num"><span class="transparent">8</span></button>
-            <button class="key num"><span class="transparent">7</span></button>
-            <button class="key operator">
-              <span class="transparent">+</span>
-            </button>
-          </div>
-          <div class="row">
-            <button class="key num"><span class="transparent">6</span></button>
-            <button class="key num"><span class="transparent">5</span></button>
-            <button class="key num"><span class="transparent">4</span></button>
-            <button class="key operator">
-              <span class="transparent">-</span>
-            </button>
-          </div>
-          <div class="row">
-            <button class="key num"><span class="transparent">3</span></button>
-            <button class="key num"><span class="transparent">2</span></button>
-            <button class="key num"><span class="transparent">1</span></button>
-            <button class="key operator">
-              <span class="transparent">x</span>
-            </button>
-          </div>
-          <div class="row">
-            <button class="key clear">
-              <span class="transparent">AC</span>
-            </button>
-            <button class="key num"><span class="transparent">0</span></button>
-            <button class="key equal">
-              <span class="transparent">=</span>
-            </button>
-            <button class="key operator">
-              <span class="transparent">/</span>
-            </button>
-          </div>
+        <div class="row">
+          <button class="key num"><span class="transparent">6</span></button>
+          <button class="key num"><span class="transparent">5</span></button>
+          <button class="key num"><span class="transparent">4</span></button>
+          <button class="key operator">
+            <span class="transparent">-</span>
+          </button>
+        </div>
+        <div class="row">
+          <button class="key num"><span class="transparent">3</span></button>
+          <button class="key num"><span class="transparent">2</span></button>
+          <button class="key num"><span class="transparent">1</span></button>
+          <button class="key operator">
+            <span class="transparent">x</span>
+          </button>
+        </div>
+        <div class="row">
+          <button class="key clear">
+            <span class="transparent">AC</span>
+          </button>
+          <button class="key num"><span class="transparent">0</span></button>
+          <button class="key equal">
+            <span class="transparent">=</span>
+          </button>
+          <button class="key operator">
+            <span class="transparent">/</span>
+          </button>
         </div>
       </div>
     </div>
