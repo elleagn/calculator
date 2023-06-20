@@ -31,30 +31,42 @@ const newLeaf = function (value = 0) {
   };
 };
 
+const isALeaf = function (expression) {
+  return expression.operator === undefined;
+};
+
 function makeExpression(
   operator,
   firstOperand = newLeaf(),
   secondOperand = newLeaf()
 ) {
-  return {
+  const expression = {
     operator,
     firstOperand,
     secondOperand,
     value: operate(firstOperand.value, secondOperand.value, operator),
   };
+  if (!isALeaf(secondOperand)) {
+    expression.lastOperatorNode =
+      secondOperand.lastOperatorNode === undefined
+        ? secondOperand
+        : secondOperand.lastOperatorNode;
+  }
+  return expression;
 }
 
-const appendOperatorBottom = function (tree, operator) {
-  switch (tree.operator) {
-    case undefined:
-      tree = makeExpression(operator, tree);
+const appendOperatorBottom = function (expression, operator) {
+  switch (isALeaf(expression)) {
+    case true:
+      expression = makeTree(operator, expression);
       break;
-    default:
-      appendOperatorBottom(tree.secondOperand, operator);
-      tree.value = operate(
-        tree.firstOperand.value,
-        tree.secondOperand.value,
-        tree.operator
+    case false:
+      appendOperatorBottom(expression.secondOperand, operator);
+      expression.lastOperatorNode = secondOperand.lastOperatorNode;
+      expression.value = operate(
+        expression.firstOperand.value,
+        expression.secondOperand.value,
+        expression.operator
       );
   }
 };
@@ -74,35 +86,74 @@ const display = document.querySelector(".calcul");
 const numkeys = document.querySelectorAll(".num");
 const operatorkeys = document.querySelectorAll(".operator");
 const keys = document.querySelectorAll(".key");
+const pad = document.querySelector(".pad");
 const equal = document.querySelector(".equal");
 const clear = document.querySelector(".clear");
 const tmpRes = document.querySelector(".res");
 
 /*Functions to update the display*/
 
-const addToDisplay = function (key) {
-  display.textContent += key.firstChild.textContent;
+const reactToKeyPress = function (ev) {
+  const key = ev.currentTarget;
+  let keyType;
+  if (key.classList.contains("num")) {
+    keyType = "num";
+  } else if (key.classList.contains("operator")) {
+    keyType = "operator";
+  } else if (key.classList.contains("clear")) {
+    keyType = "clear";
+  } else if (key.classList.contains("equal")) {
+    keyType = "equal";
+  }
+  switch (keyType) {
+    case "clear":
+      clearDisplay();
+      waitForInput();
+      break;
+    case "equal":
+      confirmExpression();
+      waitForInput();
+      break;
+    case "operator":
+      //determineOperatorType(key);
+      waitForInput("butOperator");
+    //addToDisplay(key.firstChild.textContent);
+    default:
+      //updateExpression(keyValue);
+      display.textContent += key.firstChild.textContent;
+  }
+};
+
+const waitForInput = function (keytype = "all") {
+  switch (keytype) {
+    case "all":
+      keys.forEach(function (key) {
+        key.addEventListener("click", reactToKeyPress);
+      });
+    case "butOperator":
+      numkeys.forEach(function (key) {
+        key.addEventListener("click", reactToKeyPress);
+      });
+      clear.addEventListener("click", reactToKeyPress);
+      equal.addEventListener("click", reactToKeyPress);
+  }
 };
 
 const clearDisplay = function () {
   display.textContent = "";
+  tmpRes.textContent = "";
+  displayValue = newLeaf();
 };
 
-let displayValue = newLeaf();
-updateDisplay();
-
-numkeys.forEach(function (key) {
-  key.addEventListener("click", function (ev) {
-    addToDisplay(ev.currentTarget);
-  });
-});
-
-clear.addEventListener("click", clearDisplay);
-
-equal.addEventListener("click", () => {
-  display.textContent = tmpRes.textContent;
+const confirmExpression = function () {
+  display.textContent = displayValue.value;
+  displayValue = newLeaf(displayValue.value);
   tmpRes.textContent = "";
-});
+};
+
+/*Script to make the calculator work*/
 
 let displayValue = newLeaf();
-updateDisplay();
+let currentLeaf = displayValue;
+
+waitForInput();
