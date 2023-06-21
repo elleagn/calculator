@@ -91,7 +91,7 @@ const appendOperatorAux = function (expression, operator) {
       break;
     case false:
       appendOperatorAux(expression.secondOperand, operator);
-      expression.lastOperatorNode = secondOperand.lastOperatorNode;
+      expression.lastOperatorNode = expression.secondOperand.lastOperatorNode;
       expression.value = operate(
         expression.firstOperand.value,
         expression.secondOperand.value,
