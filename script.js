@@ -46,22 +46,51 @@ function makeExpression(
     secondOperand,
     value: operate(firstOperand.value, secondOperand.value, operator),
   };
-  if (!isALeaf(secondOperand)) {
-    expression.lastOperatorNode =
-      secondOperand.lastOperatorNode === undefined
-        ? secondOperand
-        : secondOperand.lastOperatorNode;
-  }
+  expression.lastOperatorNode = isALeaf(secondOperand)
+    ? expression
+    : secondOperand.lastOperatorNode;
+
   return expression;
 }
 
-const appendOperatorBottom = function (expression, operator) {
+const addNumber = function (number) {
+  if (isALeaf(displayValue)) {
+    displayValue.value = 10 * displayValue.value + number;
+  } else {
+    displayValue.lastOperatorNode.secondOperand.value =
+      10 * displayValue.lastOperatorNode.secondOperand.value + number;
+    updateValue(displayValue);
+    tmpRes.textContent = displayValue.value;
+  }
+};
+
+const updateValue = function (tree) {
+  if (!isALeaf(tree)) {
+    updateValue(tree.secondOperand);
+    tree.value = operate(
+      tree.firstOperand.value,
+      tree.secondOperand.value,
+      tree.operator
+    );
+  }
+};
+
+const appendOperatorAux = function (expression, operator) {
   switch (isALeaf(expression)) {
     case true:
-      expression = makeTree(operator, expression);
+      expression.firstOperand = newLeaf(expression.value);
+      expression.secondOperand = newLeaf();
+      expression.lastOperatorNode = expression;
+      expression.operator = operator;
+      expression.value = operate(
+        expression.firstOperand.value,
+        expression.secondOperand.value,
+        expression.operator
+      );
+      expression.lastOperatorNode = expression;
       break;
     case false:
-      appendOperatorBottom(expression.secondOperand, operator);
+      appendOperatorAux(expression.secondOperand, operator);
       expression.lastOperatorNode = secondOperand.lastOperatorNode;
       expression.value = operate(
         expression.firstOperand.value,
@@ -71,13 +100,41 @@ const appendOperatorBottom = function (expression, operator) {
   }
 };
 
-const appendOperator = function (position, operator) {
-  switch (position) {
-    case "top":
+const convertToFunction = function (operatorString) {
+  switch (operatorString) {
+    case "+":
+      return add;
+    case "-":
+      return subtract;
+    case "x":
+      return multiply;
+    case "/":
+      return divide;
+  }
+};
+
+const appendOperator = function (operatorString) {
+  const operator = convertToFunction(operatorString);
+  switch (operatorString) {
+    case "-":
+    case "+":
       displayValue = makeExpression(operator, displayValue);
       break;
-    case "bottom":
-      appendOperatorBottom(displayValue, operator);
+    case "x":
+      appendOperatorAux(displayValue, operator);
+      break;
+    case "/":
+      if (
+        isALeaf(displayValue) ||
+        !(displayValue.lastOperatorNode.operator(2, 3) === 6)
+      ) {
+        appendOperatorAux(displayValue, operator);
+      } else {
+        displayValue.lastOperatorNode.firstOperand =
+          displayValue.lastOperatorNode;
+        displayValue.lastOperatorNode.operator = operator;
+        updateValue;
+      }
   }
 };
 
@@ -93,49 +150,19 @@ const tmpRes = document.querySelector(".res");
 
 /*Functions to update the display*/
 
-const reactToKeyPress = function (ev) {
-  const key = ev.currentTarget;
-  let keyType;
-  if (key.classList.contains("num")) {
-    keyType = "num";
-  } else if (key.classList.contains("operator")) {
-    keyType = "operator";
-  } else if (key.classList.contains("clear")) {
-    keyType = "clear";
-  } else if (key.classList.contains("equal")) {
-    keyType = "equal";
-  }
-  switch (keyType) {
-    case "clear":
-      clearDisplay();
-      waitForInput();
-      break;
-    case "equal":
-      confirmExpression();
-      waitForInput();
-      break;
-    case "operator":
-      //determineOperatorType(key);
-      waitForInput("butOperator");
-    //addToDisplay(key.firstChild.textContent);
-    default:
-      //updateExpression(keyValue);
-      display.textContent += key.firstChild.textContent;
-  }
-};
-
 const waitForInput = function (keytype = "all") {
   switch (keytype) {
     case "all":
       keys.forEach(function (key) {
-        key.addEventListener("click", reactToKeyPress);
+        key.addEventListener("click", reactToKeyPress, { once: true });
       });
+      break;
     case "butOperator":
       numkeys.forEach(function (key) {
-        key.addEventListener("click", reactToKeyPress);
+        key.addEventListener("click", reactToKeyPress, { once: true });
       });
-      clear.addEventListener("click", reactToKeyPress);
-      equal.addEventListener("click", reactToKeyPress);
+      clear.addEventListener("click", reactToKeyPress, { once: true });
+      equal.addEventListener("click", reactToKeyPress, { once: true });
   }
 };
 
@@ -151,9 +178,61 @@ const confirmExpression = function () {
   tmpRes.textContent = "";
 };
 
+const addToDisplay = function (keyValue) {
+  if (keyValue === "x") {
+    keyValue = "*";
+  }
+  display.textContent += keyValue;
+};
+
+const findSpan = function (key) {
+  let keySpan = key.firstChild;
+  while (keySpan.tagName !== "SPAN") {
+    keySpan = keySpan.nextSibling;
+  }
+  return keySpan;
+};
+
+const updateExpression = function (keyValue, type) {
+  switch (type) {
+    case "operator":
+      appendOperator(keyValue);
+      break;
+    case "number":
+      addNumber(Number(keyValue));
+  }
+};
+
+const reactToKeyPress = function (ev) {
+  const key = ev.currentTarget;
+  let keySpan = findSpan(key);
+
+  switch (keySpan.textContent) {
+    case "AC":
+      clearDisplay();
+      waitForInput();
+      break;
+    case "=":
+      confirmExpression();
+      waitForInput();
+      break;
+    case "+":
+    case "x":
+    case "/":
+    case "-":
+      updateExpression(keySpan.textContent, "operator");
+      waitForInput("butOperator");
+      addToDisplay(keySpan.textContent);
+      break;
+    default:
+      updateExpression(keySpan.textContent, "number");
+      addToDisplay(keySpan.textContent);
+      waitForInput();
+  }
+};
+
 /*Script to make the calculator work*/
 
 let displayValue = newLeaf();
-let currentLeaf = displayValue;
 
 waitForInput();
