@@ -148,23 +148,60 @@ const pad = document.querySelector(".pad");
 const equal = document.querySelector(".equal");
 const clear = document.querySelector(".clear");
 const tmpRes = document.querySelector(".res");
-
+const minusKey = document.querySelector(".minus");
 /*Functions to update the display*/
 
-const waitForInput = function (keytype = "all") {
-  switch (keytype) {
-    case "all":
-      keys.forEach(function (key) {
-        key.addEventListener("click", reactToKeyPress, { once: true });
-      });
-      break;
-    case "butOperator":
-      numkeys.forEach(function (key) {
-        key.addEventListener("click", reactToKeyPress, { once: true });
-      });
-      clear.addEventListener("click", reactToKeyPress, { once: true });
-      equal.addEventListener("click", reactToKeyPress, { once: true });
+const activateNumkeys = function () {
+  numkeys.forEach(function (key) {
+    key.addEventListener("click", reactToKeyPress);
+  });
+};
+
+const activateMisc = function () {
+  clear.addEventListener("click", clearDisplay);
+  equal.addEventListener("click", confirmExpression);
+};
+
+const enableOperators = function () {
+  operatorkeys.forEach(function (key) {
+    key.addEventListener("click", reactToKeyPress, { once: true });
+  });
+  minusKey.removeEventListener("click", handleNegative);
+};
+
+const disableOperators = function () {
+  operatorkeys.forEach(function (key) {
+    key.removeEventListener("click", reactToKeyPress, { once: true });
+  });
+  minusKey.addEventListener("click", handleNegative, { once: true });
+};
+
+const enableNegative = function () {
+  minusKey.addEventListener("click", handleNegative, { once: true });
+};
+
+const handleNegative = function (ev) {
+  appendOperator("x");
+  displayValue.lastOperatorNode.firstOperand.value = -1;
+  if (!isALeaf(displayValue)) {
+    addToDisplay("(-");
+    rememberParenthesis();
+  } else {
+    addToDisplay("-");
   }
+};
+
+const rememberParenthesis = function () {
+  operatorkeys.forEach(function (key) {
+    key.addEventListener("click", closeParenthesis);
+  });
+};
+
+const closeParenthesis = function () {
+  addToDisplay(")");
+  operatorkeys.forEach(function (key) {
+    key.removeEventListener("click", closeParenthesis);
+  });
 };
 
 const clearDisplay = function () {
@@ -211,24 +248,24 @@ const reactToKeyPress = function (ev) {
   switch (keySpan.textContent) {
     case "AC":
       clearDisplay();
-      waitForInput();
+      disableOperators();
       break;
     case "=":
       confirmExpression();
-      waitForInput();
+      enableOperators();
       break;
     case "+":
     case "x":
     case "/":
     case "-":
       updateExpression(keySpan.textContent, "operator");
-      waitForInput("butOperator");
+      disableOperators();
       addToDisplay(keySpan.textContent);
       break;
     default:
       updateExpression(keySpan.textContent, "number");
       addToDisplay(keySpan.textContent);
-      waitForInput();
+      enableOperators();
   }
 };
 
@@ -236,4 +273,5 @@ const reactToKeyPress = function (ev) {
 
 let displayValue = newLeaf();
 
-waitForInput();
+activateNumkeys();
+activateMisc();
