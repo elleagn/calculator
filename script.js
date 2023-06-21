@@ -132,6 +132,7 @@ const appendOperator = function (operatorString) {
       } else {
         displayValue.lastOperatorNode.firstOperand =
           displayValue.lastOperatorNode;
+        displayValue.lastOperatorNode.secondOperand = newLeaf();
         displayValue.lastOperatorNode.operator = operator;
         updateValue;
       }
