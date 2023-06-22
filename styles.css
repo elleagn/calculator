@@ -53,11 +53,11 @@ span {
 
 .num {
   border: 2px solid #1186ae;
-  border-image: linear-gradient(90deg, #0699a5, #1186ae, #1b73b6) 1;
+  border-image: linear-gradient(90deg, cyan, midnightblue) 1;
 }
 
 .num span {
-  background-image: linear-gradient(90deg, #0699a5, #1186ae, #1b73b6);
+  background-image: linear-gradient(90deg, cyan, midnightblue);
 }
 
 .calculator {
@@ -74,6 +74,7 @@ span {
 .display {
   height: 150px;
   display: flex;
+  flex: none;
   font-family: pixel;
   flex-direction: column;
   align-items: flex-end;
@@ -91,7 +92,7 @@ span {
   margin: 0;
   background-image: linear-gradient(90deg, #a3a7b5, #ebecf2);
 }
-.display p {
+.display div {
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
@@ -127,32 +128,36 @@ span {
   font-size: 50px;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .operator {
   border: 2px solid #ce7f3b;
-  border-image: linear-gradient(90deg, #ddbc30, #bc563f) 1;
+  border-image: linear-gradient(90deg, yellow, orangered) 1;
 }
 
 .operator span {
   background-color: #ce7f3b;
-  background-image: linear-gradient(90deg, #ddbc30, #bc563f);
+  background-image: linear-gradient(90deg, yellow, orangered);
 }
 
 .equal {
   border: 2px solid #ce7f3b;
-  border-image: linear-gradient(90deg, #01f088, #147152) 1;
+  border-image: linear-gradient(90deg, mediumspringgreen, lime) 1;
 }
 
 .equal span {
   background-color: #147152;
-  background-image: linear-gradient(90deg, #01f088, #147152);
+  background-image: linear-gradient(90deg, mediumspringgreen, lime);
 }
 
 .clear {
   border: 2px solid #d1474c;
-  border-image: linear-gradient(90deg, #e4355e, #731b1e) 1;
+  border-image: linear-gradient(90deg, indianred, red) 1;
 }
 
 .clear span {
   background-color: #d1474c;
-  background-image: linear-gradient(90deg, #e4355e, #731b1e);
+  background-image: linear-gradient(90deg, indianred, red);
 }

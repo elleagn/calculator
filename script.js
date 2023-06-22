@@ -143,59 +143,6 @@ const tmpRes = document.querySelector(".res");
 const minusKey = document.querySelector(".minus");
 /*Functions to update the display*/
 
-const activateNumkeys = function () {
-  numkeys.forEach(function (key) {
-    key.addEventListener("click", reactToKeyPress);
-  });
-};
-
-const activateMisc = function () {
-  clear.addEventListener("click", clearDisplay);
-  equal.addEventListener("click", confirmExpression);
-};
-
-const enableOperators = function () {
-  operatorkeys.forEach(function (key) {
-    key.addEventListener("click", reactToKeyPress, { once: true });
-  });
-  enableNegative();
-};
-
-const disableOperators = function () {
-  operatorkeys.forEach(function (key) {
-    key.removeEventListener("click", reactToKeyPress, { once: true });
-  });
-  enableNegative();
-};
-
-const enableNegative = function () {
-  minusKey.addEventListener("click", handleNegative, { once: true });
-};
-
-const handleNegative = function (ev) {
-  appendOperator("x");
-  displayValue.lastOperatorNode.firstOperand.value = -1;
-  if (!isALeaf(displayValue)) {
-    addToDisplay("(-");
-    rememberParenthesis();
-  } else {
-    addToDisplay("-");
-  }
-};
-
-const rememberParenthesis = function () {
-  operatorkeys.forEach(function (key) {
-    key.addEventListener("click", closeParenthesis);
-  });
-};
-
-const closeParenthesis = function () {
-  addToDisplay(")");
-  operatorkeys.forEach(function (key) {
-    key.removeEventListener("click", closeParenthesis);
-  });
-};
-
 const clearDisplay = function () {
   display.classList.remove("small");
   display.classList.add("big");
@@ -276,9 +223,123 @@ const reactToKeyPress = function (ev) {
   }
 };
 
-/*Script to make the calculator work*/
+/*Functions to enable/disable the operators*/
+const activateNumkeys = function () {
+  numkeys.forEach(function (key) {
+    key.addEventListener("click", reactToKeyPress);
+    key.addEventListener("mouseover", animateKeys);
+  });
+};
+
+const activateMisc = function () {
+  clear.addEventListener("click", clearDisplay);
+  equal.addEventListener("click", confirmExpression);
+  equal.addEventListener("mouseover", animateKeys);
+  clear.addEventListener("mouseover", animateKeys);
+};
+
+const enableOperators = function () {
+  operatorkeys.forEach(function (key) {
+    key.addEventListener("click", reactToKeyPress, { once: true });
+    key.addEventListener("mouseover", animateKeys);
+  });
+};
+
+const disableOperators = function () {
+  operatorkeys.forEach(function (key) {
+    key.removeEventListener("click", reactToKeyPress, { once: true });
+  });
+  enableNegative();
+};
+
+const enableNegative = function () {
+  minusKey.addEventListener("click", handleNegative, { once: true });
+  minusKey.addEventListener("mouseover", animateKeys);
+};
+
+const handleNegative = function (ev) {
+  if (!isALeaf(displayValue)) {
+    addToDisplay("(-");
+    rememberParenthesis();
+  } else {
+    addToDisplay("-");
+  }
+  appendOperator("x");
+  displayValue.lastOperatorNode.firstOperand.value = -1;
+};
+
+const rememberParenthesis = function () {
+  operatorkeys.forEach(function (key) {
+    key.addEventListener("click", closeParenthesis);
+  });
+};
+
+const closeParenthesis = function () {
+  addToDisplay(")");
+  operatorkeys.forEach(function (key) {
+    key.removeEventListener("click", closeParenthesis);
+  });
+};
+
+/*Animations of the keys*/
+const findKeyType = function (key) {
+  switch (findSpan(key).textContent) {
+    case "AC":
+      return "clear";
+    case "=":
+      return "equal";
+    case "+":
+    case "x":
+    case "/":
+    case "-":
+      return "operator";
+    default:
+      return "number";
+  }
+};
+
+const turnAround = function (key, angle, color) {
+  key.style.cursor = "pointer";
+  angle.value += 1;
+  key.style.borderImage = `linear-gradient(${90 + angle.value}deg,${color}) 1`;
+};
+
+const stopAnimation = function (key, angle, color) {
+  key.style.borderImage = `linear-gradient(90deg,${color}) 1`;
+  angle.value = 0;
+};
+
+const chooseColor = function (keyType) {
+  switch (keyType) {
+    case "number":
+      return " cyan,midnightblue";
+    case "operator":
+      return "yellow, orangered";
+    case "clear":
+      return "indianred,red";
+    case "equal":
+      return " mediumspringgreen,lime";
+  }
+};
+
+const animateKeys = function (ev) {
+  const key = ev.currentTarget;
+  const color = chooseColor(findKeyType(key));
+  let angle = { value: 0 };
+  intervalID = setInterval(turnAround, 2, key, angle, color);
+  key.addEventListener(
+    "mouseout",
+    () => {
+      clearInterval(intervalID);
+      stopAnimation(key, angle, color);
+    },
+    { once: true }
+  );
+};
+
+/*Initializing the calculator*/
 
 clearDisplay();
-
 activateNumkeys();
 activateMisc();
+enableNegative();
