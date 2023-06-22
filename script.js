@@ -25,30 +25,21 @@ const operate = function (operand1, operand2, operator) {
 
 /*Functions to deal with expression tree*/
 
-const newLeaf = function (value = 0) {
-  return {
-    value,
-  };
-};
-
 const isALeaf = function (expression) {
   return expression.operator === undefined;
 };
 
-function makeExpression(
-  operator,
-  firstOperand = newLeaf(),
-  secondOperand = newLeaf()
-) {
+function makeExpression(operator, firstOperand = 0, secondOperand = 0) {
   const expression = {
     operator,
-    firstOperand,
-    secondOperand,
-    value: operate(firstOperand.value, secondOperand.value, operator),
+    firstOperand: { value: firstOperand },
+    secondOperand: { value: secondOperand },
+    value: 0,
   };
   expression.lastOperatorNode = isALeaf(secondOperand)
     ? expression
     : secondOperand.lastOperatorNode;
+  updateValue(expression);
 
   return expression;
 }
@@ -59,44 +50,47 @@ const addNumber = function (number) {
   } else {
     displayValue.lastOperatorNode.secondOperand.value =
       10 * displayValue.lastOperatorNode.secondOperand.value + number;
-    updateValue(displayValue);
-    tmpRes.textContent = displayValue.value;
   }
 };
 
-const updateValue = function (tree) {
+const updateValue = function (tree, force = false) {
   if (!isALeaf(tree)) {
     updateValue(tree.secondOperand);
-    tree.value = operate(
-      tree.firstOperand.value,
-      tree.secondOperand.value,
-      tree.operator
-    );
+    if (tree.operator === "/") {
+      if (force && tree.secondOperand.value === 0) {
+        clearDisplay();
+        display.classList.add("small");
+        addToDisplay("FATAL ERROR:Division by zero. You go to math jail!");
+        return "error";
+      } else if (tree.secondOperand.value !== 0) {
+        tree.value = operate(
+          tree.firstOperand.value,
+          tree.secondOperand.value,
+          convertToFunction(tree.operator)
+        );
+      }
+    } else {
+      tree.value = operate(
+        tree.firstOperand.value,
+        tree.secondOperand.value,
+        convertToFunction(tree.operator)
+      );
+    }
   }
 };
 
 const appendOperatorAux = function (expression, operator) {
   switch (isALeaf(expression)) {
     case true:
-      expression.firstOperand = newLeaf(expression.value);
-      expression.secondOperand = newLeaf();
+      expression.firstOperand = { value: expression.value };
+      expression.secondOperand = { value: 0 };
       expression.lastOperatorNode = expression;
       expression.operator = operator;
-      expression.value = operate(
-        expression.firstOperand.value,
-        expression.secondOperand.value,
-        expression.operator
-      );
       expression.lastOperatorNode = expression;
       break;
     case false:
       appendOperatorAux(expression.secondOperand, operator);
       expression.lastOperatorNode = expression.secondOperand.lastOperatorNode;
-      expression.value = operate(
-        expression.firstOperand.value,
-        expression.secondOperand.value,
-        expression.operator
-      );
   }
 };
 
@@ -113,12 +107,11 @@ const convertToFunction = function (operatorString) {
   }
 };
 
-const appendOperator = function (operatorString) {
-  const operator = convertToFunction(operatorString);
-  switch (operatorString) {
+const appendOperator = function (operator) {
+  switch (operator) {
     case "-":
     case "+":
-      displayValue = makeExpression(operator, displayValue);
+      displayValue = makeExpression(operator, displayValue.value);
       break;
     case "x":
       appendOperatorAux(displayValue, operator);
@@ -126,15 +119,14 @@ const appendOperator = function (operatorString) {
     case "/":
       if (
         isALeaf(displayValue) ||
-        !(displayValue.lastOperatorNode.operator(2, 3) === 6)
+        !(convertToFunction(displayValue.lastOperatorNode.operator)(2, 3) === 6)
       ) {
         appendOperatorAux(displayValue, operator);
       } else {
         displayValue.lastOperatorNode.firstOperand =
           displayValue.lastOperatorNode;
-        displayValue.lastOperatorNode.secondOperand = newLeaf();
+        displayValue.lastOperatorNode.secondOperand = { value: 0 };
         displayValue.lastOperatorNode.operator = operator;
-        updateValue;
       }
   }
 };
@@ -166,14 +158,14 @@ const enableOperators = function () {
   operatorkeys.forEach(function (key) {
     key.addEventListener("click", reactToKeyPress, { once: true });
   });
-  minusKey.removeEventListener("click", handleNegative);
+  enableNegative();
 };
 
 const disableOperators = function () {
   operatorkeys.forEach(function (key) {
     key.removeEventListener("click", reactToKeyPress, { once: true });
   });
-  minusKey.addEventListener("click", handleNegative, { once: true });
+  enableNegative();
 };
 
 const enableNegative = function () {
@@ -205,15 +197,19 @@ const closeParenthesis = function () {
 };
 
 const clearDisplay = function () {
+  display.classList.remove("small");
+  display.classList.add("big");
   display.textContent = "";
   tmpRes.textContent = "";
-  displayValue = newLeaf();
+  displayValue = { value: 0 };
 };
 
 const confirmExpression = function () {
-  display.textContent = displayValue.value;
-  displayValue = newLeaf(displayValue.value);
-  tmpRes.textContent = "";
+  if (updateValue(displayValue, true) !== "error") {
+    display.textContent = displayValue.value;
+    displayValue = { value: displayValue.value };
+    tmpRes.textContent = "";
+  }
 };
 
 const addToDisplay = function (keyValue) {
@@ -264,6 +260,17 @@ const reactToKeyPress = function (ev) {
       break;
     default:
       updateExpression(keySpan.textContent, "number");
+      updateValue(displayValue);
+      if (
+        !isALeaf(displayValue) &&
+        (displayValue.operator !== "/" ||
+          displayValue.secondOperand.value !== 0)
+      ) {
+        tmpRes.textContent = displayValue.value;
+      }
+      if (Number(display) === NaN) {
+        clearDisplay();
+      }
       addToDisplay(keySpan.textContent);
       enableOperators();
   }
@@ -271,7 +278,7 @@ const reactToKeyPress = function (ev) {
 
 /*Script to make the calculator work*/
 
-let displayValue = newLeaf();
+clearDisplay();
 
 activateNumkeys();
 activateMisc();

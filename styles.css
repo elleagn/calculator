@@ -68,6 +68,7 @@ span {
   height: 700px;
   gap: 20px;
   aspect-ratio: 9/13;
+  flex: none;
 }
 
 .display {
@@ -77,11 +78,16 @@ span {
   flex-direction: column;
   align-items: flex-end;
   justify-content: space-between;
-  padding-right: 10px;
+  padding: 10px;
+}
+.big {
+  font-size: 70px;
+}
+.small {
+  font-size: 36px;
 }
 
 .calcul {
-  font-size: 70px;
   margin: 0;
   background-image: linear-gradient(90deg, #a3a7b5, #ebecf2);
 }
