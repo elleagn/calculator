@@ -1,5 +1,3 @@
-/*J'ai essayé de coder les parentheses il faut les fonctions pour les déclencher et après les utiliser pour mettre les puissances et les arrondis. Pour fermer la parenthese il faut juste mettre parenthese à false*/
-
 /*Functions to perform arithmetic operations*/
 
 const add = function (integer1, integer2) {
@@ -222,6 +220,9 @@ const clearDisplay = function () {
   mainExpressionTree = { value: null };
   parentheses = [mainExpressionTree];
   mainNode = mainExpressionTree;
+  activateNumkeys();
+  disableOperators();
+  forgetParenthesis();
 };
 
 const confirmExpression = function () {
@@ -240,6 +241,7 @@ const confirmExpression = function () {
     tmpResult.textContent = "";
     parentheses = [mainExpressionTree];
     mainNode = mainExpressionTree;
+    forgetParenthesis();
   }
 };
 
@@ -355,8 +357,10 @@ const handleNegative = function (ev) {
   } else {
     addToDisplay("-");
   }
+  openParentheses();
   addDigit(latestNumber(mainNode), -1);
-  addOperator("x");
+
+  addOperator("x", mainNode);
 };
 
 const disableNegative = function () {
@@ -369,9 +373,15 @@ const rememberParenthesis = function () {
   });
 };
 
+const forgetParenthesis = function () {
+  operatorkeys.forEach(function (key) {
+    key.removeEventListener("click", closeParenthesis, { once: true });
+  });
+};
+
 const openParentheses = function () {
-  parentheses += latestNumber(mainNode);
-  mainNode = parentheses[parentheses.length - 1];
+  length = parentheses.push(latestNumber(mainNode));
+  mainNode = parentheses[length - 1];
 };
 
 const closeParenthesis = function () {
