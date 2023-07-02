@@ -29,7 +29,10 @@ const divide = function (integer1, integer2) {
 };
 
 const operate = function (operand1, operand2, operator) {
-  return convertToFunction(operator)(operand1, operand2);
+  return convertToFunction(operator)(
+    Number(operand1),
+    operand2 === null ? null : Number(operand2)
+  );
 };
 
 const power = function (base, exponent) {
@@ -41,12 +44,15 @@ const power = function (base, exponent) {
     case 0:
       return 1;
     default:
-      return base * power(base, exponent - 1);
+      if (exponent > 0) {
+        return base * power(base, exponent - 1);
+      }
+      return base / power(base, exponent + 1);
   }
 };
 
 const round = function (number, pow) {
-  if (pow <= 13) {
+  if (Math.abs(pow) <= 13) {
     return number;
   }
   return Math.round(number / power(10, pow - 2)) / 10;
@@ -110,12 +116,13 @@ function joinExpressions(operator, firstOperand, secondOperand) {
 }
 
 const addDigit = function (node, digit) {
-  if (!node.value) {
+  if (node.value === null) {
     node.value = digit;
+    activateFloat();
   } else if (Number.isNaN(node.value)) {
     alert("Node isn't a number");
   } else {
-    node.value = 10 * node.value + digit;
+    node.value = node.value + digit;
   }
 };
 
@@ -134,7 +141,10 @@ const addOperator = function (operator, expression) {
 const updateValues = function (expression) {
   if (!isANumber(expression)) {
     updateValues(expression.secondOperand);
-    if (expression.operator === "/" && expression.secondOperand.value === 0) {
+    if (
+      expression.operator === "/" &&
+      Number(expression.secondOperand.value) === 0
+    ) {
       expression.value = operate(
         expression.firstOperand.value,
         1,
@@ -155,9 +165,12 @@ const calculateValue = function (expression) {
     if (calculateValue(expression.secondOperand) === "error") {
       return "error";
     }
-    if (expression.operator === "/" && expression.secondOperand.value === 0) {
+    if (
+      expression.operator === "/" &&
+      Number(expression.secondOperand.value) === 0
+    ) {
       clearDisplay();
-      display.classList.add("small");
+      mainExpression.classList.add("small");
       addToDisplay("FATAL ERROR:Division by zero. You go to math jail!");
       return "error";
     } else {
@@ -202,12 +215,14 @@ let mainNode = mainExpressionTree;
 /*Functions to update the display*/
 
 const updateTmp = function () {
-  value = mainExpressionTree.value;
-  length = value.toString().length;
+  const value = mainExpressionTree.value;
+  const length = value.toString().length;
+  const sign = Number(value) > 9 ? 1 : -1;
   tmpResult.textContent =
     length > 10
       ? (
-          Math.round(value / power(10, length - 1)) * power(10, length - 1)
+          Math.round(value / power(10, multiply(sign, length - 1))) *
+          power(10, multiply(sign, length - 1))
         ).toExponential()
       : value;
 };
@@ -226,17 +241,24 @@ const clearDisplay = function () {
 };
 
 const confirmExpression = function () {
-  if (calculateValue(mainExpression) !== "error") {
+  if (calculateValue(mainExpressionTree) !== "error") {
     const value = mainExpressionTree.value;
     const length = value.toString().length;
+    const sign = Number(value) > 1 ? 1 : -1;
     mainExpressionTree = {
       value:
         length > 10
-          ? Math.round(value / power(10, length - 1)) * power(10, length - 1)
+          ? Math.round(value / power(10, multiply(sign, length - 1))) *
+            power(10, multiply(sign, length - 1))
           : value,
     };
     mainExpression.textContent =
-      length > 10 ? mainExpressionTree.value.toExponential() : value;
+      length > 10
+        ? (
+            Math.round(value / power(10, multiply(sign, length - 1))) *
+            power(10, multiply(sign, length - 1))
+          ).toExponential()
+        : value;
 
     tmpResult.textContent = "";
     parentheses = [mainExpressionTree];
@@ -289,15 +311,22 @@ const reactToKeyClick = function (ev) {
       openParentheses();
       addToDisplay(keySpan.textContent);
       disableOperators();
+      break;
     case ")":
       closeParenthesis();
       addToDisplay(keySpan.textContent);
       enableOperators();
+      break;
+
+    case ".":
+      disableFloat();
 
     default:
-      addDigit(latestNumber(mainNode), Number(keySpan.textContent));
+      addDigit(latestNumber(mainNode), keySpan.textContent);
       updateValues(mainExpressionTree);
-      updateTmp();
+      if (!isANumber(mainExpressionTree)) {
+        updateTmp();
+      }
       addToDisplay(keySpan.textContent);
       enableOperators();
   }
@@ -393,6 +422,18 @@ const closeParenthesis = function () {
   } else {
     mainNode = parentheses[parentheses.length - 1];
   }
+  numkeys.forEach(function (key) {
+    key.addEventListener("click", function () {
+      addOperator("x", mainNode);
+    });
+  });
+  keys.forEach(function () {
+    numkeys.forEach(function (key) {
+      key.removeEventListener("click", function () {
+        addOperator("x", mainNode);
+      });
+    });
+  });
   operatorkeys.forEach(function (key) {
     key.removeEventListener("click", closeParenthesis, { once: true });
   });
@@ -405,11 +446,18 @@ const findKeyType = function (key) {
       return "clear";
     case "=":
       return "equal";
+    case ".":
+      return "point";
     case "+":
     case "x":
     case "/":
     case "-":
       return "operator";
+    case "(":
+    case ")":
+      return "parenthesis";
+    case "DEL":
+      return "delete";
     default:
       return "number";
   }
@@ -429,10 +477,13 @@ const stopAnimation = function (key, angle, color) {
 const chooseColor = function (keyType) {
   switch (keyType) {
     case "number":
+    case "point":
       return " cyan,midnightblue";
     case "operator":
+    case "parenthesis":
       return "yellow, orangered";
     case "clear":
+    case "delete":
       return "indianred,red";
     case "equal":
       return " mediumspringgreen,lime";
@@ -486,6 +537,18 @@ const doNotOverflow = function (ev) {
 numkeys.forEach(function (key) {
   key.addEventListener("click", doNotOverflow);
 });
+
+/*Implementation of floats */
+const point = document.querySelector(".point");
+const activateFloat = function () {
+  point.addEventListener("mouseover", animateKeys);
+  point.addEventListener("click", reactToKeyClick);
+};
+
+const disableFloat = function () {
+  point.removeEventListener("mouseover", animateKeys);
+  point.removeEventListener("click", reactToKeyClick);
+};
 
 /*Implementation of parentheses*/
 

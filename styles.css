@@ -20,6 +20,7 @@ body {
   align-items: center;
   width: 100%;
   height: fit-content;
+  padding: 15px;
   font-family: Verdana, Arial, Geneva, Tahoma, sans-serif;
   background-color: black;
 }
@@ -51,12 +52,14 @@ span {
   box-shadow: inset 0px 0px 0px 0.3px #000000;
 }
 
-.num {
+.num,
+.point {
   border: 2px solid #1186ae;
   border-image: linear-gradient(90deg, cyan, midnightblue) 1;
 }
 
-.num span {
+.num span,
+.point span {
   background-image: linear-gradient(90deg, cyan, midnightblue);
 }
 
@@ -67,7 +70,7 @@ span {
   justify-content: space-between;
   height: 700px;
   gap: 20px;
-  aspect-ratio: 9/13;
+  aspect-ratio: 9/10;
   flex: none;
 }
 
@@ -132,12 +135,14 @@ span {
   cursor: pointer;
 }
 
-.operator {
+.operator,
+.parenthesis {
   border: 2px solid #ce7f3b;
   border-image: linear-gradient(90deg, yellow, orangered) 1;
 }
 
-.operator span {
+.operator span,
+.parenthesis span {
   background-color: #ce7f3b;
   background-image: linear-gradient(90deg, yellow, orangered);
 }
@@ -152,12 +157,14 @@ span {
   background-image: linear-gradient(90deg, mediumspringgreen, lime);
 }
 
-.clear {
+.clear,
+.delete {
   border: 2px solid #d1474c;
   border-image: linear-gradient(90deg, indianred, red) 1;
 }
 
-.clear span {
+.clear span,
+.delete span {
   background-color: #d1474c;
   background-image: linear-gradient(90deg, indianred, red);
 }
