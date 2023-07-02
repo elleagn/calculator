@@ -29,10 +29,12 @@ const divide = function (integer1, integer2) {
 };
 
 const operate = function (operand1, operand2, operator) {
-  return convertToFunction(operator)(
+  let result = convertToFunction(operator)(
     Number(operand1),
     operand2 === null ? null : Number(operand2)
   );
+  result = parseFloat(result.toPrecision(15));
+  return result;
 };
 
 const power = function (base, exponent) {
@@ -49,13 +51,6 @@ const power = function (base, exponent) {
       }
       return base / power(base, exponent + 1);
   }
-};
-
-const round = function (number, pow) {
-  if (Math.abs(pow) <= 13) {
-    return number;
-  }
-  return Math.round(number / power(10, pow - 2)) / 10;
 };
 
 const priority = function (operator) {
@@ -216,15 +211,7 @@ let mainNode = mainExpressionTree;
 
 const updateTmp = function () {
   const value = mainExpressionTree.value;
-  const length = value.toString().length;
-  const sign = Number(value) > 9 ? 1 : -1;
-  tmpResult.textContent =
-    length > 10
-      ? (
-          Math.round(value / power(10, multiply(sign, length - 1))) *
-          power(10, multiply(sign, length - 1))
-        ).toExponential()
-      : value;
+  tmpResult.textContent = value;
 };
 
 const clearDisplay = function () {
@@ -243,22 +230,11 @@ const clearDisplay = function () {
 const confirmExpression = function () {
   if (calculateValue(mainExpressionTree) !== "error") {
     const value = mainExpressionTree.value;
-    const length = value.toString().length;
-    const sign = Number(value) > 1 ? 1 : -1;
+
     mainExpressionTree = {
-      value:
-        length > 10
-          ? Math.round(value / power(10, multiply(sign, length - 1))) *
-            power(10, multiply(sign, length - 1))
-          : value,
+      value: value,
     };
-    mainExpression.textContent =
-      length > 10
-        ? (
-            Math.round(value / power(10, multiply(sign, length - 1))) *
-            power(10, multiply(sign, length - 1))
-          ).toExponential()
-        : value;
+    mainExpression.textContent = value;
 
     tmpResult.textContent = "";
     parentheses = [mainExpressionTree];
