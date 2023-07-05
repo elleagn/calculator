@@ -73,7 +73,7 @@ const priority = function (operator) {
 /*Functions to deal with expression tree*/
 
 const isANumber = function (expression) {
-  return !expression.hasOwnProperty("operator");
+  return !Object.hasOwn(expression, "firstOperand");
 };
 
 function createNumber(value = null) {
@@ -127,6 +127,8 @@ const addOperator = function (operator, expression) {
     priority(operator) <= priority(expression.operator)
   ) {
     joinExpressions(operator, expression, createNumber());
+  } else if (expression.operator === null) {
+    expression.operator = operator;
   } else {
     addOperator(operator, expression.secondOperand);
     return expression;
@@ -266,6 +268,7 @@ const reactToKeyClick = function (ev) {
     case "AC":
       clearDisplay();
       disableOperators();
+      disableClose();
       break;
     case "=":
       confirmExpression();
@@ -274,6 +277,7 @@ const reactToKeyClick = function (ev) {
       operatorkeys.forEach((key) => {
         key.removeEventListener("click", closeParenthesis, { once: true });
       });
+      disableClose();
       break;
     case "+":
     case "x":
@@ -282,22 +286,31 @@ const reactToKeyClick = function (ev) {
       addOperator(keySpan.textContent, mainNode);
       disableOperators();
       addToDisplay(keySpan.textContent);
+      disableClose();
       break;
     case "(":
       openParentheses();
       addToDisplay(keySpan.textContent);
       disableOperators();
+      disableClose();
       break;
     case ")":
-      closeParenthesis();
-      addToDisplay(keySpan.textContent);
-      enableOperators();
+      if (parentheses.length > 1) {
+        closeParenthesis();
+        enableOperators();
+      } else {
+        disableClose();
+      }
       break;
 
     case ".":
       disableFloat();
+      disableClose();
 
     default:
+      if (!isANumber(mainNode) && !mainNode.operator) {
+        mainNode.operator = "x";
+      }
       addDigit(latestNumber(mainNode), keySpan.textContent);
       updateValues(mainExpressionTree);
       if (!isANumber(mainExpressionTree)) {
@@ -305,6 +318,9 @@ const reactToKeyClick = function (ev) {
       }
       addToDisplay(keySpan.textContent);
       enableOperators();
+      if (parentheses.length >= 1) {
+        activateClose();
+      }
   }
 };
 
@@ -385,6 +401,15 @@ const forgetParenthesis = function () {
 };
 
 const openParentheses = function () {
+  const expression = mainExpression.textContent;
+  if (
+    !isNaN(expression[expression.length - 1]) ||
+    expression[expression.length - 1] === ")"
+  ) {
+    addToDisplay("*");
+    addOperator("x", mainNode);
+  }
+
   length = parentheses.push(latestNumber(mainNode));
   mainNode = parentheses[length - 1];
 };
@@ -392,24 +417,12 @@ const openParentheses = function () {
 const closeParenthesis = function () {
   addToDisplay(")");
   calculateValue(mainNode);
-  if (parentheses.pop() === mainExpressionTree) {
-    joinExpressions(null, mainExpressionTree, createNumber());
-    parentheses = [mainExpressionTree];
+  if (parentheses.pop() === parentheses[parentheses.length - 1]) {
+    joinExpressions(null, mainNode, createNumber());
   } else {
     mainNode = parentheses[parentheses.length - 1];
   }
-  numkeys.forEach(function (key) {
-    key.addEventListener("click", function () {
-      addOperator("x", mainNode);
-    });
-  });
-  keys.forEach(function () {
-    numkeys.forEach(function (key) {
-      key.removeEventListener("click", function () {
-        addOperator("x", mainNode);
-      });
-    });
-  });
+
   operatorkeys.forEach(function (key) {
     key.removeEventListener("click", closeParenthesis, { once: true });
   });
@@ -528,9 +541,40 @@ const disableFloat = function () {
 
 /*Implementation of parentheses*/
 
+const open = document.querySelector(".open");
+const activateOpen = function () {
+  open.addEventListener("mouseover", animateKeys);
+  open.addEventListener("click", reactToKeyClick);
+};
+
+const close = document.querySelector(".close");
+const activateClose = function () {
+  close.addEventListener("click", reactToKeyClick);
+  close.addEventListener("mouseover", animateKeys);
+};
+const disableClose = function () {
+  close.removeEventListener("click", reactToKeyClick);
+  close.removeEventListener("mouseover", animateKeys);
+};
+/*Printing the tree*/
+
+const printTree = function (expression) {
+  return [
+    [expression.firstOperand?.value, expression.firstOperand?.operator],
+    [expression.value, expression.operator],
+    [expression.secondOperand?.value, expression.secondOperand?.operator],
+  ];
+};
+
+/*Delete button*/
+
 /*Initializing the calculator*/
 clearDisplay();
 activateNumkeys();
 activateMisc();
 enableNegative();
-pad.addEventListener("click", () => {});
+activateOpen();
+
+pad.addEventListener("click", () => {
+  //alert(printTree(mainNode));
+});
